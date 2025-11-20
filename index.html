@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Translate &amp; Search (IT) – Floating Screen Translator with ChatGPT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI Translate & Search (IT) is a floating screen translator and AI lens for Android. Circle any part of your screen to translate, analyze or send it to ChatGPT without switching apps." />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-soft: #0b1120;
+      --accent: #22c55e;
+      --accent-soft: #4ade80;
+      --accent-blue: #38bdf8;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border-soft: #1e293b;
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 48px rgba(0,0,0,0.65);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 45%, #020617 100%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #f97316, #b91c1c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      font-weight: 700;
+      font-size: 15px;
+      color: #fee2e2;
+    }
+
+    .brand-text-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148,163,184,0.35);
+      color: #cbd5f5;
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.2), rgba(15,23,42,0.85));
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.35);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0,1.5fr) minmax(0,1.1fr);
+      gap: 26px;
+    }
+
+    @media (max-width: 880px) {
+      main {
+        grid-template-columns: minmax(0,1fr);
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, #020617, #020617 48%, #020617);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      padding: 22px 22px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.10), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,0.10), transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      margin: 0 0 8px 0;
+    }
+
+    h1 span.highlight {
+      background: linear-gradient(120deg, #22c55e, #38bdf8);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-soft);
+      margin-bottom: 14px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: #cbd5f5;
+      background: rgba(15,23,42,0.9);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: var(--radius-pill);
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(22,163,74,0.55);
+    }
+
+    .btn-primary span.icon {
+      font-size: 14px;
+    }
+
+    .cta-note {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .meta-row strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .secondary-card {
+      background: radial-gradient(circle at top, #020617, #020617 52%, #020617);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-soft);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .secondary-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at top right, rgba(56,189,248,0.12), transparent 60%),
+        radial-gradient(circle at bottom left, rgba(34,197,94,0.10), transparent 60%);
+      opacity: 0.9;
+    }
+
+    .secondary-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .sec-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+    }
+
+    .sec-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-bottom: 10px;
+    }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 10px 0;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+
+    .list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .list-bullet {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      margin-top: 6px;
+      background: linear-gradient(135deg, #22c55e, #38bdf8);
+      flex-shrink: 0;
+    }
+
+    .qr-block {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .qr-frame {
+      width: 110px;
+      height: 110px;
+      border-radius: 999px;
+      padding: 9px;
+      background: radial-gradient(circle at 30% 30%, #fed7aa, #c2410c);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-frame img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      background: #fff;
+      object-fit: cover;
+    }
+
+    .qr-caption {
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    section {
+      margin-top: 26px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      background: radial-gradient(circle at top, #020617, #020617 52%, #020617);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    section h2 {
+      font-size: 16px;
+      margin: 0 0 8px 0;
+    }
+
+    section p {
+      font-size: 13px;
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin: 0 0 8px 0;
+    }
+
+    .cols-2 {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(0,1.1fr);
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .cols-2 {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+    footer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #111827;
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <div class="brand-logo">IT</div>
+        <div>
+          <div class="brand-text-title">MehrAndroid</div>
+          <div class="brand-text-sub">AI Translate &amp; Search (IT)</div>
+        </div>
+      </div>
+      <div class="pill">
+        <span class="pill-dot"></span>
+        <span>Now available on Google Play</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Left: main pitch -->
+      <div class="card">
+        <div class="card-inner">
+          <h1>
+            <span class="highlight">AI Translate &amp; Search (IT)</span><br />
+            Floating screen translator with ChatGPT.
+          </h1>
+          <p class="subtitle">
+            Circle anything on your Android screen—text, images, videos, PDFs—and instantly translate,
+            understand or send it to ChatGPT without switching apps.
+          </p>
+
+          <div class="chip-row">
+            <div class="chip">Screen translator</div>
+            <div class="chip">Floating AI lens</div>
+            <div class="chip">ChatGPT-powered search</div>
+            <div class="chip">Visual translation</div>
+            <div class="chip">Google Circle-style interaction</div>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn-primary" href="https://play.google.com/store/apps/details?id=com.mehrandroid.intelligenttranslator" target="_blank" rel="noopener">
+              <span class="icon">▶</span>
+              <span>Open on Google Play</span>
+            </a>
+            <div class="cta-note">
+              No sign-in required · Optional in-app support · Android 7.0+
+            </div>
+          </div>
+
+          <div class="meta-row">
+            <div><strong>Platform:</strong> Android</div>
+            <div><strong>Use cases:</strong> on-screen translation, ChatGPT assistant, visual search</div>
+            <div><strong>Best for:</strong> readers, students, developers, professionals</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: features + QR -->
+      <div class="secondary-card">
+        <div class="secondary-inner">
+          <div class="sec-title">What IT does for you</div>
+          <div class="sec-sub">
+            IT turns your screen into an AI-assisted workspace. Instead of copying text or jumping
+            between apps, you simply circle what you see and let the floating lens do the work.
+          </div>
+
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span>Translate anything on screen: articles, chats, apps, PDFs, subtitles and images.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Send screenshots or selections directly to ChatGPT for explanations, summaries or rewrites.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Use a circle-style gesture similar to modern visual search tools, but powered by your choice of AI.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Review or auto-delete your recent sessions for a privacy-first experience.</span>
+            </li>
+          </ul>
+
+          <div class="qr-block">
+            <div class="qr-frame">
+              <!-- QR with official logo -->
+              <img src="https://i.postimg.cc/GtMKQKks/IT-QR-with-official-logo.png"
+                   alt="QR code for AI Translate &amp; Search (IT) on Google Play" />
+            </div>
+            <div class="qr-caption">
+              Scan the QR code on your phone to open the app page on Google Play.<br />
+              Or search: <strong>“AI Translate &amp; Search (IT)”</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Extra SEO content -->
+    <section>
+      <h2>Screen translator, ChatGPT assistant and Google Circle-style overlay in one app</h2>
+      <p>
+        AI Translate &amp; Search (IT) is designed for users who constantly read, learn and search on their phones.
+        If you regularly take screenshots to translate them, copy text into translators, or switch to ChatGPT just
+        to ask “what does this mean?”, IT removes all that friction.
+      </p>
+      <p>
+        Once enabled, the floating lens sits on top of your screen. Whenever you want help, you simply drag or tap,
+        circle the area you care about, and IT captures that region. From there you can translate, run OCR, or send
+        the content straight into ChatGPT (or another AI service in WebView) for a deeper explanation.
+      </p>
+
+      <div class="cols-2">
+        <div>
+          <h3 style="font-size:14px; margin:0 0 6px 0;">Typical ways people use IT</h3>
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span>Translate foreign-language news, social media, comments and app interfaces.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Study from PDFs or textbooks by sending sections to ChatGPT for simplified explanations.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Understand technical documentation or code snippets without leaving the screen.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span>Use IT as a Google Circle-style assistant for screenshots and images.</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="font-size:14px; margin:0 0 6px 0;">Privacy-first by design</h3>
+          <p>
+            IT does not collect analytics or build profiles. The overlay and storage permissions are used only while
+            you actively interact with the lens. Your content stays on your device unless you explicitly send it to
+            an AI service like ChatGPT in your browser.
+          </p>
+          <p>
+            You can also clear or auto-delete your on-device history at any time, so screenshots or session links are
+            not stored longer than you need them.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© MehrAndroid – AI Translate &amp; Search (IT)</div>
+      <div>
+        Google Play link:
+        <a href="https://play.google.com/store/apps/details?id=com.mehrandroid.intelligenttranslator" target="_blank" rel="noopener">
+          com.mehrandroid.intelligenttranslator
+        </a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
